@@ -1,0 +1,1511 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Divine Macfoy Akachukwu &mdash; Performance Video Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-primary: #1a1816;
+        --bg-secondary: #201e1c;
+        --bg-card: #252320;
+        --bg-elevated: #2a2826;
+        --bg-footer: #242220;
+        --gold: #c9a96e;
+        --gold-soft: rgba(201, 169, 110, 0.12);
+        --gold-border: rgba(201, 169, 110, 0.35);
+        --text-primary: #f0ece4;
+        --text-secondary: rgba(240, 236, 228, 0.6);
+        --text-muted: rgba(240, 236, 228, 0.38);
+        --border-subtle: rgba(240, 236, 228, 0.07);
+        --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+        --font-display: "Bebas Neue", sans-serif;
+        --font-body: "Plus Jakarta Sans", sans-serif;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* ===== GRAIN TEXTURE ===== */
+      .grain-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.025;
+        mix-blend-mode: overlay;
+      }
+      .grain-overlay::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        background-repeat: repeat;
+        background-size: 256px 256px;
+        animation: grainShift 0.5s steps(10) infinite;
+      }
+      @keyframes grainShift {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        10% {
+          transform: translate(-2%, -2%);
+        }
+        20% {
+          transform: translate(2%, 1%);
+        }
+        30% {
+          transform: translate(-1%, 2%);
+        }
+        40% {
+          transform: translate(1%, -1%);
+        }
+        50% {
+          transform: translate(-2%, 2%);
+        }
+        60% {
+          transform: translate(2%, -2%);
+        }
+        70% {
+          transform: translate(-1%, -1%);
+        }
+        80% {
+          transform: translate(1%, 2%);
+        }
+        90% {
+          transform: translate(-2%, 1%);
+        }
+      }
+
+      /* ===== SCROLL REVEAL ===== */
+      .reveal {
+        opacity: 0;
+        transform: translateY(36px);
+        transition:
+          opacity 0.75s var(--transition-smooth),
+          transform 0.75s var(--transition-smooth);
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .reveal-delay-1 {
+        transition-delay: 0.1s;
+      }
+      .reveal-delay-2 {
+        transition-delay: 0.2s;
+      }
+      .reveal-delay-3 {
+        transition-delay: 0.3s;
+      }
+      .reveal-delay-4 {
+        transition-delay: 0.4s;
+      }
+
+      /* ===== HERO ===== */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        position: relative;
+        padding: 2rem;
+        background: var(--bg-primary);
+      }
+
+      .hero-label {
+        position: absolute;
+        top: 2.5rem;
+        left: 2.5rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-name {
+        font-family: var(--font-display);
+        font-size: clamp(5rem, 14vw, 11rem);
+        line-height: 0.9;
+        letter-spacing: 0.01em;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+      }
+
+      .hero-tagline {
+        font-family: var(--font-body);
+        font-size: clamp(1rem, 1.6vw, 1.25rem);
+        font-weight: 400;
+        color: var(--text-secondary);
+        letter-spacing: 0.01em;
+      }
+
+      .scroll-hint {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1;
+        animation: bounce 2.5s ease-in-out infinite;
+      }
+      .scroll-hint svg {
+        width: 24px;
+        height: 24px;
+        stroke: var(--text-muted);
+        stroke-width: 1.5;
+        fill: none;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateX(-50%) translateY(0);
+        }
+        50% {
+          transform: translateX(-50%) translateY(8px);
+        }
+      }
+
+      /* ===== SECTIONS ===== */
+      section {
+        padding: 5rem 2.5rem;
+        position: relative;
+      }
+      .section-container {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .section-title {
+        font-family: var(--font-display);
+        font-size: clamp(2.8rem, 5.5vw, 4.2rem);
+        color: var(--text-primary);
+        letter-spacing: 0.01em;
+        line-height: 1;
+        margin-bottom: 1rem;
+      }
+      .section-subtitle {
+        font-size: clamp(0.85rem, 1.1vw, 1rem);
+        color: var(--text-secondary);
+        line-height: 1.7;
+        max-width: 520px;
+      }
+
+      /* ===== SELECTED WORKS ===== */
+      .works-section {
+        background: var(--bg-secondary);
+      }
+      .works-header {
+        margin-bottom: 3rem;
+      }
+
+      .filter-bar {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        margin-bottom: 2.5rem;
+      }
+      .filter-pill {
+        padding: 0.5rem 1.1rem;
+        font-family: var(--font-body);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-radius: 100px;
+        border: 1.5px solid var(--border-subtle);
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s var(--transition-smooth);
+      }
+      .filter-pill:hover {
+        border-color: var(--gold-border);
+        color: var(--text-primary);
+      }
+      .filter-pill.active {
+        background: var(--gold);
+        color: var(--bg-primary);
+        border-color: var(--gold);
+      }
+
+      .works-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .work-card {
+        position: relative;
+        border-radius: 14px;
+        overflow: hidden;
+        cursor: pointer;
+        aspect-ratio: 16 / 10;
+        transition: all 0.5s var(--transition-smooth);
+        border: 1px solid var(--border-subtle);
+      }
+      .work-card:hover {
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        border-color: rgba(201, 169, 110, 0.15);
+      }
+
+      .work-thumbnail {
+        position: absolute;
+        inset: 0;
+        transition: transform 0.7s var(--transition-smooth);
+      }
+      .work-card:hover .work-thumbnail {
+        transform: scale(1.06);
+      }
+
+      .work-thumbnail-bg {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+      /* Gradient overlay at bottom for text readability */
+      .work-thumbnail-bg::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60%;
+        background: linear-gradient(
+          to top,
+          rgba(26, 24, 22, 0.85) 0%,
+          rgba(26, 24, 22, 0.3) 50%,
+          transparent 100%
+        );
+        pointer-events: none;
+      }
+
+      .work-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem 1.75rem;
+        z-index: 2;
+      }
+      .work-title {
+        font-family: var(--font-body);
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.3rem;
+        line-height: 1.25;
+      }
+      .work-meta {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+
+      .work-play-btn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.85);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(201, 169, 110, 0.88);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.4s var(--transition-smooth);
+        z-index: 3;
+      }
+      .work-play-btn svg {
+        width: 18px;
+        height: 18px;
+        fill: var(--bg-primary);
+        margin-left: 2px;
+      }
+      .work-card:hover .work-play-btn {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .pagination {
+        display: flex;
+        gap: 0.4rem;
+        justify-content: center;
+        align-items: center;
+      }
+      .page-btn {
+        min-width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-body);
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 10px;
+        border: 1.5px solid var(--border-subtle);
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s var(--transition-smooth);
+      }
+      .page-btn:hover {
+        border-color: var(--gold-border);
+        color: var(--text-primary);
+      }
+      .page-btn.active {
+        background: var(--gold);
+        color: var(--bg-primary);
+        border-color: var(--gold);
+      }
+      .page-btn:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+      }
+
+      /* ===== MODAL ===== */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(26, 24, 22, 0.94);
+        backdrop-filter: blur(14px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s var(--transition-smooth);
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal-content {
+        background: var(--bg-elevated);
+        border-radius: 16px;
+        border: 1px solid var(--border-subtle);
+        width: 100%;
+        max-width: 900px;
+        position: relative;
+        overflow: hidden;
+        transform: scale(0.93) translateY(16px);
+        transition: transform 0.5s var(--transition-smooth);
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+      }
+      .modal-overlay.open .modal-content {
+        transform: scale(1) translateY(0);
+      }
+      .modal-close {
+        position: absolute;
+        top: 0.875rem;
+        right: 0.875rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s var(--transition-smooth);
+      }
+      .modal-close:hover {
+        background: rgba(201, 169, 110, 0.15);
+        border-color: var(--gold-border);
+        color: var(--gold);
+        transform: rotate(90deg);
+      }
+      .modal-close svg {
+        width: 16px;
+        height: 16px;
+      }
+      .modal-iframe-wrapper {
+       position: relative;
+       width: 100%;
+       height: 80vh;
+       max-height: 90vh;
+       background: #000;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+}
+
+.modal-iframe-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  object-fit: contain;
+}
+
+      /* ===== WHAT I DO ===== */
+      .services-section {
+        background: var(--bg-primary);
+      }
+      .services-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+      }
+      .service-card {
+        background: var(--bg-card);
+        border-radius: 14px;
+        padding: 2.25rem;
+        border: 1px solid var(--border-subtle);
+        transition: all 0.5s var(--transition-smooth);
+        position: relative;
+      }
+      .service-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--gold-border);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      }
+      .service-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--gold-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.25rem;
+      }
+      .service-icon svg {
+        width: 20px;
+        height: 20px;
+        stroke: var(--gold);
+        stroke-width: 1.8;
+        fill: none;
+      }
+      .service-title {
+        font-family: var(--font-body);
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.6rem;
+      }
+      .service-desc {
+        font-size: 0.8rem;
+        line-height: 1.7;
+        color: var(--text-secondary);
+      }
+
+      /* ===== EXPERIENCE & SKILLS ===== */
+      .experience-section {
+        background: var(--bg-secondary);
+      }
+      .experience-layout {
+        display: grid;
+        grid-template-columns: 1fr 1.1fr;
+        gap: 3.5rem;
+      }
+
+      /* Left column */
+      .exp-left {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+      }
+      .exp-intro {
+        font-size: 0.85rem;
+        line-height: 1.75;
+        color: var(--text-secondary);
+        max-width: 400px;
+      }
+      .skill-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .skill-pill {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.72rem;
+        font-weight: 500;
+        border-radius: 100px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+        transition: all 0.3s var(--transition-smooth);
+      }
+      .skill-pill:hover {
+        border-color: var(--gold-border);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+      }
+
+      /* Right column - Resume Card */
+      .resume-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        border: 1px solid var(--border-subtle);
+        padding: 2rem 2.25rem;
+        position: relative;
+      }
+      .resume-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        padding: 1px;
+        background: linear-gradient(
+          135deg,
+          rgba(201, 169, 110, 0.15) 0%,
+          transparent 40%,
+          transparent 60%,
+          rgba(201, 169, 110, 0.08) 100%
+        );
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      .resume-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .resume-name {
+        font-family: var(--font-body);
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.2rem;
+      }
+      .resume-role {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--gold);
+        letter-spacing: 0.04em;
+      }
+
+      .resume-entry {
+        margin-bottom: 1.5rem;
+      }
+      .resume-entry:last-child {
+        margin-bottom: 0;
+      }
+      .entry-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.4rem;
+      }
+      .entry-role {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .entry-date {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+      .entry-company {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 0.3rem;
+      }
+      .entry-desc {
+        font-size: 0.75rem;
+        line-height: 1.65;
+        color: var(--text-muted);
+      }
+
+      .divider {
+        height: 1px;
+        background: var(--border-subtle);
+        margin: 1.25rem 0;
+      }
+
+      /* Proficiency bars */
+      .proficiency-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+      }
+      .prof-bar {
+        margin-bottom: 0.85rem;
+      }
+      .prof-bar:last-child {
+        margin-bottom: 0;
+      }
+      .prof-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.35rem;
+      }
+      .prof-name {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+      }
+      .prof-pct {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--gold);
+      }
+      .prof-track {
+        width: 100%;
+        height: 4px;
+        background: rgba(240, 236, 228, 0.06);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .prof-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), #b8995a);
+        border-radius: 2px;
+        width: 0;
+        transition: width 1.2s var(--transition-smooth);
+      }
+      .prof-fill.animate {
+        width: var(--width);
+      }
+
+      /* ===== RESUME DOWNLOAD ===== */
+      .resume-section {
+        background: var(--bg-card);
+        text-align: center;
+      }
+      .resume-section .section-title {
+        font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      }
+      .btn-large {
+        padding: 1rem 2.5rem;
+        font-size: 0.82rem;
+        border-radius: 100px;
+        background: var(--gold);
+        color: var(--bg-primary);
+        font-family: var(--font-body);
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.4s var(--transition-smooth);
+        box-shadow: 0 4px 24px rgba(201, 169, 110, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+      .btn-large:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(201, 169, 110, 0.3);
+      }
+      .btn-large svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* ===== FOOTER ===== */
+      .footer {
+        background: var(--bg-footer);
+        text-align: center;
+        padding: 4.5rem 2rem 2.5rem;
+      }
+      .footer-headline {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 4.5vw, 3.2rem);
+        color: var(--text-primary);
+        letter-spacing: 0.01em;
+        margin-bottom: 1.25rem;
+      }
+      .footer-email {
+        display: inline-block;
+        font-family: var(--font-body);
+        font-size: clamp(1rem, 1.8vw, 1.25rem);
+        font-weight: 600;
+        color: var(--gold);
+        text-decoration: none;
+        margin-bottom: 1.25rem;
+        position: relative;
+        letter-spacing: 0.02em;
+      }
+      .footer-email::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 1px;
+        background: var(--gold);
+        transition: width 0.4s var(--transition-smooth);
+      }
+      .footer-email:hover::after {
+        width: 100%;
+      }
+      .footer-links {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        margin-bottom: 2.5rem;
+      }
+      .footer-links a {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+      .footer-links a:hover {
+        color: var(--text-primary);
+      }
+      .copyright {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        letter-spacing: 0.04em;
+      }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 768px) {
+        section {
+          padding: 3.5rem 1.25rem;
+        }
+        .works-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+        .services-grid {
+          grid-template-columns: 1fr;
+        }
+        .experience-layout {
+          grid-template-columns: 1fr;
+          gap: 2.5rem;
+        }
+        .hero-name {
+          font-size: clamp(3.5rem, 14vw, 7rem);
+        }
+        .hero-label {
+          left: 1.25rem;
+          top: 1.5rem;
+        }
+        .work-card {
+          aspect-ratio: 16 / 11;
+        }
+        .resume-card {
+          padding: 1.5rem;
+        }
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg-primary);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(201, 169, 110, 0.25);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(201, 169, 110, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grain-overlay"></div>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+      <div class="hero-label">Video Editor</div>
+      <div class="hero-content">
+        <h1 class="hero-name reveal">Divine Macfoy</h1>
+        <p class="hero-tagline reveal reveal-delay-1">
+          I edit videos that stop the scroll, hold attention, and convert. Across Meta, TikTok, YouTube, and everywhere brands need to show up.
+           
+        </p>
+      </div>
+      <div class="scroll-hint">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg>
+      </div>
+    </section>
+
+    <!-- ===== SELECTED WORKS ===== -->
+    <section class="works-section" id="works">
+      <div class="section-container">
+        <div class="works-header reveal">
+          <h2 class="section-title">Selected Works</h2>
+          <p class="section-subtitle">
+            A curated collection of edits spanning DTC ads, short-form content,
+            long-form storytelling, and AI-driven production.
+          </p>
+        </div>
+        <div class="filter-bar reveal">
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="dtc-ads">DTC Ads</button>
+          <button class="filter-pill" data-filter="ai-content">
+            AI Content
+          </button>
+          <button class="filter-pill" data-filter="short-form">
+            Short Form
+          </button>
+          <button class="filter-pill" data-filter="long-form">Long Form</button>
+          
+          <button class="filter-pill" data-filter="youtube">YouTube</button>
+          <button class="filter-pill" data-filter="brand-film"> 
+            Brand Film 
+          </button>
+          <button class="filter-pill" data-filter="social-media">
+            Social Media
+          </button>
+          -->
+          
+        </div>
+        <div class="works-grid" id="worksGrid"></div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </section>
+
+    <!-- Video Modal -->
+    <div class="modal-overlay" id="videoModal">
+      <div class="modal-content">
+        <button class="modal-close" id="modalClose" aria-label="Close">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+        <div class="modal-iframe-wrapper" id="modalFrameWrapper"></div>
+      </div>
+    </div>
+
+    <!-- ===== WHAT I DO ===== -->
+    <section class="services-section" id="services">
+      <div class="section-container">
+        <div class="section-header reveal">
+          <h2 class="section-title">What I Do</h2>
+          <p class="section-subtitle">
+            Three disciplines. One goal: content that performs.
+          </p>
+        </div>
+        <div class="services-grid">
+          <div class="service-card reveal reveal-delay-1">
+            <div class="service-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+            </div>
+            <h3 class="service-title">Performance Ad Creative</h3>
+            <p class="service-desc">
+              I produce DTC video ads built around one metric: results. Every
+              hook, cut, and caption is engineered to hold attention and push
+              viewers to act, whether that is a click, a purchase, or a follow.
+            </p>
+          </div>
+          <div class="service-card reveal reveal-delay-2">
+            <div class="service-icon">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"
+                />
+              </svg>
+            </div>
+            <h3 class="service-title">AI-Powered Production</h3>
+            <p class="service-desc">
+              I use tools like Runway, Google Veo, Kling, ElevenLabs, and Hedra
+              to move faster without losing quality. AI handles scale. I handle
+              creative direction, strategy, and taste.
+            </p>
+          </div>
+          <div class="service-card reveal reveal-delay-3">
+            <div class="service-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </div>
+            <h3 class="service-title">Long Form &amp; Brand Storytelling</h3>
+            <p class="service-desc">
+              From YouTube documentaries to brand anthem films, I know how to
+              hold an audience for 10 minutes as well as 10 seconds. The format
+              changes. The intention does not.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== EXPERIENCE & SKILLS ===== -->
+    <section class="experience-section" id="experience">
+      <div class="section-container">
+        <div class="section-header reveal">
+          <h2 class="section-title">Experience &amp; Skills</h2>
+          <p class="section-subtitle">
+            Five years of craft, strategy, and measurable results.
+          </p>
+        </div>
+        <div class="experience-layout">
+          <div class="exp-left reveal">
+            <p class="exp-intro">
+              Over 5 years of professional video editing across advertising,
+              DTC, and digital media. Specialized in performance creative,
+              AI-driven production, narrative pacing, hook optimization, and
+              cross-platform delivery.
+            </p>
+            <div class="skill-pills">
+              <span class="skill-pill">Premiere Pro</span>
+              <span class="skill-pill">After Effects</span>
+              <span class="skill-pill">DaVinci Resolve</span>
+              <span class="skill-pill">CapCut</span>
+              <span class="skill-pill">Adobe Audition</span>
+              <span class="skill-pill">Runway</span>
+              <span class="skill-pill">Google Veo</span>
+              <span class="skill-pill">ElevenLabs</span>
+              <span class="skill-pill">Hedra</span>
+              <span class="skill-pill">Meta Ads</span>
+              <span class="skill-pill">TikTok Ads</span>
+              <span class="skill-pill">A/B Testing</span>
+              <span class="skill-pill">Color Grading</span>
+              <span class="skill-pill">Sound Design</span>
+            </div>
+          </div>
+
+          <div class="resume-card reveal reveal-delay-2">
+            <div class="resume-header">
+              <div class="resume-name">Divine Macfoy Akachukwu</div>
+              <div class="resume-role">Performance Video Editor</div>
+            </div>
+
+            <div class="resume-entry">
+              <div class="entry-header">
+                <span class="entry-role">Performance Video Editor</span>
+                <span class="entry-date">2026 &ndash; Present</span>
+              </div>
+              <div class="entry-company">
+                Maple Media &mdash; Full-time Remote
+              </div>
+              <div class="entry-desc">
+                Produces multiple high-converting DTC ad creatives daily,
+                running structured A/B tests across hooks, pacing, and
+                messaging. Works directly with media buyers to align creative
+                decisions with Meta performance data.
+              </div>
+            </div>
+
+            <div class="resume-entry">
+              <div class="entry-header">
+                <span class="entry-role">AI Video Editor</span>
+                <span class="entry-date">2025</span>
+              </div>
+              <div class="entry-company">
+                ReadyChatAI &mdash; Contracted Remote
+              </div>
+              <div class="entry-desc">
+                Built AI-powered content using Sora, Runway, Google Veo 3,
+                Hedra, and Higgsfield. Developed rapid creative testing systems
+                that improved hook performance and CTR for short-form social
+                content.
+              </div>
+            </div>
+
+            <div class="resume-entry">
+              <div class="entry-header">
+                <span class="entry-role"
+                  >Creative Video &amp; Animation Specialist</span
+                >
+                <span class="entry-date">Feb &ndash; Oct 2025</span>
+              </div>
+              <div class="entry-company">Teesas &mdash; Contracted Remote</div>
+              <div class="entry-desc">
+                Produced animated educational content and motion-driven visuals
+                for a growing edtech platform, using After Effects, Premiere
+                Pro, and AI tools to simplify complex topics at scale.
+              </div>
+            </div>
+
+            <div class="resume-entry">
+              <div class="entry-header">
+                <span class="entry-role"
+                  >Freelance Video Editor &amp; Creative Producer</span
+                >
+                <span class="entry-date">2020 &ndash; Present</span>
+              </div>
+              <div class="entry-company">
+                Independent &mdash; Remote and Hybrid
+              </div>
+              <div class="entry-desc">
+                Led end-to-end video production for brands across Africa, the
+                U.S., and Europe. Delivered paid social campaigns that doubled
+                engagement. Built creative testing frameworks for Meta and
+                TikTok.
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="proficiency-title">Technical Proficiency</div>
+            <div class="prof-bar">
+              <div class="prof-label">
+                <span class="prof-name">Premiere Pro</span
+                ><span class="prof-pct">95%</span>
+              </div>
+              <div class="prof-track">
+                <div class="prof-fill" data-width="95"></div>
+              </div>
+            </div>
+            <div class="prof-bar">
+              <div class="prof-label">
+                <span class="prof-name">DaVinci Resolve</span
+                ><span class="prof-pct">90%</span>
+              </div>
+              <div class="prof-track">
+                <div class="prof-fill" data-width="90"></div>
+              </div>
+            </div>
+            <div class="prof-bar">
+              <div class="prof-label">
+                <span class="prof-name">After Effects</span
+                ><span class="prof-pct">85%</span>
+              </div>
+              <div class="prof-track">
+                <div class="prof-fill" data-width="85"></div>
+              </div>
+            </div>
+            <div class="prof-bar">
+              <div class="prof-label">
+                <span class="prof-name">CapCut</span
+                ><span class="prof-pct">90%</span>
+              </div>
+              <div class="prof-track">
+                <div class="prof-fill" data-width="90"></div>
+              </div>
+            </div>
+            <div class="prof-bar">
+              <div class="prof-label">
+                <span class="prof-name">Color Grading</span
+                ><span class="prof-pct">85%</span>
+              </div>
+              <div class="prof-track">
+                <div class="prof-fill" data-width="85"></div>
+              </div>
+            </div>
+            <div class="prof-bar">
+              <div class="prof-label">
+                <span class="prof-name">Sound Design</span
+                ><span class="prof-pct">80%</span>
+              </div>
+              <div class="prof-track">
+                <div class="prof-fill" data-width="80"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RESUME DOWNLOAD ===== -->
+    <section class="resume-section" id="resume">
+      <div class="section-container">
+        <h2 class="section-title reveal">Want the full picture?</h2>
+        <p
+          class="section-subtitle reveal reveal-delay-1"
+          style="margin: 0.75rem auto 2rem"
+        >
+          Five years of work, tools, results, and clients, all in one document.
+        </p>
+        <div class="reveal reveal-delay-2">
+          <a href="divine-macfoy-resume.pdf" download class="btn-large">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path
+                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"
+              />
+            </svg>
+            Download My Resume
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer" id="contact">
+      <h2 class="footer-headline reveal">
+        Let's make something that performs.
+      </h2>
+      <a
+        href="mailto:Sirfoyx@gmail.com"
+        class="footer-email reveal reveal-delay-1"
+        >Sirfoyx@gmail.com</a
+      >
+      <div class="footer-links reveal reveal-delay-2">
+        <a
+          href="https://linkedin.com/in/divine-akachukwu"
+          target="_blank"
+          rel="noopener"
+          >LinkedIn</a
+        >
+      </div>
+      <p class="copyright reveal reveal-delay-3">
+        &copy; 2025 Divine Macfoy Akachukwu. All rights reserved.
+      </p>
+    </footer>
+
+    <script>
+      // ===== VIDEO DATA (Google Drive File IDs) =====
+      const videos = [
+        {
+          title: "Which Chatbot is better",
+          category: "ai-content",
+          id: "1jJIFveJW8nAAbG-k2v_xcjvMo-yuloyv",
+        
+          color: "#2a3a3a",
+        },
+        {
+          title: "Vexivo",
+          category: "dtc-ads",
+          id: "1-h-NCq_j8KOp9XU2lfabpjk3PiFovQ9n",
+          color: "#3a2a2a",
+ 
+        },
+           {
+          title: "AI Generated Campaign",
+          category: "ai-content",
+          id: "19OTpn2aFb2bTx88x5nhM35v3pAS7NbM7",
+          color: "#2a2d35",
+
+        },
+        {
+          title: "How to hire candidates",
+          category: "short-form",
+          id: "1bvuwfxax0wyDi2V9DSpWhsjQUkwOUdQW",
+          color: "#2a2a3a",
+
+        },
+        {
+          title: "Ford trucks",
+          category: "short-form",
+          id: "1IXn1XQnoq7j7nUlNE5QbkesrcQcU0T_F",
+          color: "#2a352a",
+        },
+        {
+          title: "Vexivo",
+          category: "dtc-ads",
+          id: "1ht9kdaFt1vKMrYXxPK9Y5ycb54QxmJ4M",
+          color: "#352a35",
+        },
+        {
+          title: "Natocore",
+          category: "ai-content",
+          id: "1kby_96mo3Njv-v4AUpLTVzKXzNNTvw_4",
+          color: "#2a3235",
+        },
+        {
+          title: "Natocore Concept 1",
+          category: "dtc-ads",
+          id: "1bByFmmjU2WOUz0Q_zIkRszgNsR2uV2Vo",
+          color: "#35322a",
+        },
+     
+        {
+          title: "Natocore Concept 2",
+          category: "dtc-ads",
+          id: "1hq4m0lKgGCgDT0PK9n3TrKrp3BmwFD9v",        
+          color: "#352a2a",
+        },
+        {
+          title: "Olive",
+          category: "dtc-ads",
+          id: "1EtWBbM1qmcPHi3mj1dWG3awZqtOON15d",         
+          color: "#2a352e",
+        },
+        {
+          title: "Fear of the Lord",
+          category: "short-form",
+          id: "1qkgH1oApoShuwJA_tVFxSEwYKQVlhoNU",        
+          color: "#352e2a",
+        },
+        {
+          title: "Video Vsl",
+          category: "short-form",
+          id: "1wLHDbB4t989j3CvKItfIzlzPSY2xF6EU",         
+          color: "#2a3035",
+        },
+        {
+          title: "Instagram Reel Series",
+          category: "social-media",
+          id: "1ABC123placeholder013",
+          color: "#352a30",
+        },
+        {
+          title: "VSL Production",
+          category: "long-form",
+          id: "1ABC123placeholder014",
+          color: "#2a3532",
+        },
+        {
+          title: "AI Avatar Campaign",
+          category: "ai-content",
+          id: "1ABC123placeholder015",
+          color: "#302a35",
+        },
+        {
+          title: "DTC Hook Montage",
+          category: "short-form",
+          id: "1ABC123placeholder016",
+          color: "#2a3528",
+        },
+        {
+          title: "Documentary Cut",
+          category: "long-form",
+          id: "1ABC123placeholder017",
+          color: "#35282a",
+        },
+        {
+          title: "Awareness Ad Series",
+          category: "social-media",
+          id: "1ABC123placeholder018",
+          color: "#2a2835",
+        },
+        {
+          title: "Retention Edit Test",
+          category: "dtc-ads",
+          id: "1ABC123placeholder019",
+          color: "#35302a",
+        },
+        {
+          title: "Motion Brand Package",
+          category: "brand-film",
+          id: "1ABC123placeholder020",
+          color: "#2a2a35",
+        },
+      ];
+
+      const ITEMS_PER_PAGE = 8;
+      let currentFilter = "all";
+      let currentPage = 1;
+
+      const worksGrid = document.getElementById("worksGrid");
+      const pagination = document.getElementById("pagination");
+      const filterPills = document.querySelectorAll(".filter-pill");
+      const videoModal = document.getElementById("videoModal");
+      const modalClose = document.getElementById("modalClose");
+      const modalFrameWrapper = document.getElementById("modalFrameWrapper");
+
+      const playIconSVG = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>`;
+
+      function getFilteredVideos() {
+        if (currentFilter === "all") return videos;
+        return videos.filter((v) => v.category === currentFilter);
+      }
+
+      function renderWorks() {
+        const filtered = getFilteredVideos();
+        const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+        if (currentPage > totalPages) currentPage = totalPages || 1;
+        if (currentPage < 1) currentPage = 1;
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
+
+        worksGrid.innerHTML = "";
+        pageItems.forEach((video) => {
+          const card = document.createElement("div");
+          card.className = "work-card";
+          card.dataset.category = video.category;
+          card.dataset.driveId = video.id;
+
+          const catLabel = video.category
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase());
+          const year =
+            video.category === "dtc-ads"
+              ? "2025"
+              : video.category === "brand-film"
+                ? "2024"
+                : "2025";
+
+          card.innerHTML = `
+                    <div class="work-thumbnail">
+                       <div class="work-thumbnail-bg" style="${video.thumbnail ? `background-image: url('${video.thumbnail}'); background-size: cover; background-position: center top;` : `background: linear-gradient(135deg, ${video.color} 0%, #1a1816 60%, #151312 100%);`}"></div>
+                    </div>
+                    <div class="work-play-btn">${playIconSVG}</div>
+                    <div class="work-info">
+                        <div class="work-title">${video.title}</div>
+                        <div class="work-meta">${catLabel} &nbsp;&middot;&nbsp; ${year}</div>
+                    </div>
+                `;
+          card.addEventListener("click", () => openModal(video.id));
+          worksGrid.appendChild(card);
+        });
+
+        renderPagination(totalPages);
+      }
+
+      function renderPagination(totalPages) {
+        pagination.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        const prevBtn = document.createElement("button");
+        prevBtn.className = "page-btn";
+        prevBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>`;
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.addEventListener("click", () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderWorks();
+          }
+        });
+        pagination.appendChild(prevBtn);
+
+        for (let i = 1; i <= totalPages; i++) {
+          const btn = document.createElement("button");
+          btn.className = `page-btn ${i === currentPage ? "active" : ""}`;
+          btn.textContent = i;
+          btn.addEventListener("click", () => {
+            currentPage = i;
+            renderWorks();
+          });
+          pagination.appendChild(btn);
+        }
+
+        const nextBtn = document.createElement("button");
+        nextBtn.className = "page-btn";
+        nextBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>`;
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.addEventListener("click", () => {
+          if (currentPage < totalPages) {
+            currentPage++;
+            renderWorks();
+          }
+        });
+        pagination.appendChild(nextBtn);
+      }
+
+      filterPills.forEach((pill) => {
+        pill.addEventListener("click", () => {
+          filterPills.forEach((p) => p.classList.remove("active"));
+          pill.classList.add("active");
+          currentFilter = pill.dataset.filter;
+          currentPage = 1;
+          renderWorks();
+        });
+      });
+
+      function openModal(driveId) {
+        modalFrameWrapper.innerHTML = `<iframe src="https://drive.google.com/file/d/${driveId}/preview" allow="autoplay" allowfullscreen></iframe>`;
+        videoModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        videoModal.classList.remove("open");
+        document.body.style.overflow = "";
+        setTimeout(() => {
+          modalFrameWrapper.innerHTML = "";
+        }, 400);
+      }
+
+      modalClose.addEventListener("click", closeModal);
+      videoModal.addEventListener("click", (e) => {
+        if (e.target === videoModal) closeModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeModal();
+      });
+
+      // ===== INTERSECTION OBSERVER =====
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { root: null, rootMargin: "0px 0px -50px 0px", threshold: 0.08 },
+      );
+
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
+
+      // ===== PROFICIENCY BAR ANIMATION =====
+      const profObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const fills = entry.target.querySelectorAll(".prof-fill");
+              fills.forEach((fill) => {
+                const w = fill.dataset.width;
+                fill.style.setProperty("--width", w + "%");
+                setTimeout(() => fill.classList.add("animate"), 100);
+              });
+              profObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.3 },
+      );
+
+      const resumeCard = document.querySelector(".resume-card");
+      if (resumeCard) profObserver.observe(resumeCard);
+
+      renderWorks();
+    </script>
+  </body>
+</html>
